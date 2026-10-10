@@ -33,6 +33,7 @@ struct MainView: View {
             .disabled(state.busy)
 
             HStack {
+                Button("Browse Files…") { showWindow(openWindow, "files") }
                 Button("Preview Cleanup…") { showWindow(openWindow, "preview") }
                 Spacer()
                 Button("Settings…") { showWindow(openWindow, "settings") }

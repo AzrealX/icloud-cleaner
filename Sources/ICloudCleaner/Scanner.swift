@@ -92,6 +92,7 @@ enum Cleaner {
     struct Outcome: Sendable {
         var evicted = 0
         var freed: Int64 = 0
+        var evictedURLs = Set<URL>()
         var failures: [String] = []
     }
 
@@ -103,6 +104,7 @@ enum Cleaner {
                 try FileManager.default.evictUbiquitousItem(at: item.url)
                 outcome.evicted += 1
                 outcome.freed += item.size
+                outcome.evictedURLs.insert(item.url)
             } catch {
                 outcome.failures.append("\(item.url.lastPathComponent): \(error.localizedDescription)")
             }
