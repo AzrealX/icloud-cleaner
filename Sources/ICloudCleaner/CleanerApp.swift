@@ -3,6 +3,7 @@ import SwiftUI
 
 @main
 struct CleanerApp: App {
+    @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var state = AppState()
 
     init() {
@@ -14,14 +15,12 @@ struct CleanerApp: App {
     }
 
     var body: some Scene {
-        MenuBarExtra {
-            MenuView()
+        Window("iCloud Cleaner", id: "main") {
+            MainView()
                 .environmentObject(state)
                 .environmentObject(state.prefs)
-        } label: {
-            Image(systemName: state.isOverLimit ? "exclamationmark.icloud" : "icloud.and.arrow.down")
         }
-        .menuBarExtraStyle(.window)
+        .windowResizability(.contentSize)
 
         Window("iCloud Cleaner Settings", id: "settings") {
             SettingsView()
@@ -50,4 +49,9 @@ struct CleanerApp: App {
         }
         if plan.count > 25 { print("  …and \(plan.count - 25) more") }
     }
+}
+
+final class AppDelegate: NSObject, NSApplicationDelegate {
+    // Closing the window quits the app (automatic cleaning only runs while it's open).
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
 }

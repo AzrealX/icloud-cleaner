@@ -6,7 +6,7 @@ private func showWindow(_ openWindow: OpenWindowAction, _ id: String) {
     NSApp.activate()
 }
 
-struct MenuView: View {
+struct MainView: View {
     @EnvironmentObject var state: AppState
     @EnvironmentObject var prefs: Preferences
     @Environment(\.openWindow) private var openWindow
@@ -31,26 +31,26 @@ struct MenuView: View {
                 if state.busy { ProgressView().controlSize(.small) }
             }
             .disabled(state.busy)
-            Button("Preview Cleanup…") { showWindow(openWindow, "preview") }
 
-            if !state.activity.isEmpty {
-                Divider()
-                Text("Recent activity").font(.caption).foregroundStyle(.secondary)
-                ForEach(state.activity.prefix(5)) { entry in
-                    Text("\(Text(entry.date, style: .time))  \(entry.message)")
-                        .font(.caption).lineLimit(2)
-                }
+            HStack {
+                Button("Preview Cleanup…") { showWindow(openWindow, "preview") }
+                Spacer()
+                Button("Settings…") { showWindow(openWindow, "settings") }
             }
 
             Divider()
-            HStack {
-                Button("Settings…") { showWindow(openWindow, "settings") }
-                Spacer()
-                Button("Quit") { NSApp.terminate(nil) }
+            Text("Recent activity").font(.caption).foregroundStyle(.secondary)
+            List(state.activity) { entry in
+                Text("\(Text(entry.date, style: .time))  \(entry.message)")
+                    .font(.caption).lineLimit(2)
+            }
+            .listStyle(.bordered)
+            .overlay {
+                if state.activity.isEmpty { Text("No activity yet").foregroundStyle(.secondary) }
             }
         }
         .padding()
-        .frame(width: 320)
+        .frame(minWidth: 420, minHeight: 360)
     }
 }
 
