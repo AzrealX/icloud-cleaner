@@ -62,6 +62,22 @@ final class AppState: ObservableObject {
         await evict(plan)
     }
 
+    /// Re-reads local usage without cleaning anything.
+    func rescan() async {
+        guard !busy else { return }
+        busy = true
+        defer { busy = false }
+        _ = await scan()
+    }
+
+    /// Removes the local copies of exactly these items (e.g. a selection in the Files window).
+    func evictSelected(_ items: [LocalItem]) async {
+        guard !busy, !items.isEmpty else { return }
+        busy = true
+        defer { busy = false }
+        await evict(items)
+    }
+
     func buildPreview() async {
         guard !busy else { return }
         busy = true
@@ -84,7 +100,10 @@ final class AppState: ObservableObject {
         for failure in outcome.failures.prefix(5) { log("Skipped \(failure)") }
         if outcome.failures.count > 5 { log("…and \(outcome.failures.count - 5) more skipped") }
         if let scan = lastScan {
-            lastScan = ScanResult(items: scan.items, totalBytes: scan.totalBytes - outcome.freed, date: scan.date)
+            lastScan = ScanResult(
+                items: scan.items.filter { !outcome.evictedURLs.contains($0.url) },
+                totalBytes: scan.totalBytes - outcome.freed, date: scan.date
+            )
         }
     }
 

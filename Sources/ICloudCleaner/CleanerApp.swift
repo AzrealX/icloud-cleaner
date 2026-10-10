@@ -30,6 +30,13 @@ struct CleanerApp: App {
         .windowResizability(.contentSize)
         .defaultLaunchBehavior(.suppressed)
 
+        Window("Local Files", id: "files") {
+            FilesView()
+                .environmentObject(state)
+                .environmentObject(state.prefs)
+        }
+        .defaultLaunchBehavior(.suppressed)
+
         Window("Cleanup Preview", id: "preview") {
             PreviewView().environmentObject(state)
         }
